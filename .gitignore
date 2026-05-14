@@ -1,3 +1,12 @@
 *.o
 asleap
 genkeys
+.DS_Store*
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+.dropbox*
+.idea
