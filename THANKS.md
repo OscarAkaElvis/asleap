@@ -10,3 +10,4 @@ thanks.
 + Devin Akin
 + George Ou
 + [puepleSkies26](https://github.com/purpleSkies26)
++ [OscarAkaElvis](https://github.com/OscarAkaElvis)
