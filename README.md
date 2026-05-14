@@ -3,6 +3,13 @@
 Pronounced "asleep". Copyright(c) 2004-2020, [Joshua Wright](https://github.com/joswr1ght)
 
 -------------------------------------------------------------------------------
+## UPDATE - 2026-05-14
+
+Fork maintenance release (2.4).
+
+Merged fix from upstream PR #9 to resolve issue #8:
++ Replaced deprecated DES crypt/setkey usage with OpenSSL EVP API.
+
 ## UPDATE - 2020-11-28
 
 Due to GLIBC removal of setkey and crypt functions, link to libxcrypt to
