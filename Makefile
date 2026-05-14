@@ -15,6 +15,9 @@ PROGOBJ		= asleap.o genkeys.o utils.o common.o sha1.o
 PROG		= asleap genkeys
 #CC		    = clang-10
 CC          = gcc
+PREFIX		?= /usr
+BINDIR		?= $(PREFIX)/bin
+DESTDIR		?=
 
 all: $(PROG) $(PROGOBJ)
 
@@ -33,6 +36,13 @@ asleap: asleap.c asleap.h sha1.o common.o common.h utils.o version.h sha1.c \
 
 genkeys: genkeys.c md4.c md4.h common.o utils.o version.h common.h
 	$(CC) $(CFLAGS) md4.c genkeys.c -o genkeys common.o utils.o $(LDLIBS)
+
+install: $(PROG)
+	install -d $(DESTDIR)$(BINDIR)
+	install -m 0755 $(PROG) $(DESTDIR)$(BINDIR)
+
+uninstall:
+	$(RM) $(DESTDIR)$(BINDIR)/asleap $(DESTDIR)$(BINDIR)/genkeys
 
 clean:
 	$(RM) $(PROGOBJ) $(PROG) *~

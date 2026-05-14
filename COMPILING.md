@@ -21,3 +21,24 @@ gcc -pipe -Wall -D_LINUX -D_OPENSSL_MD4 -g3    -c -o genkeys.o genkeys.c
 ```
 
 Optionally you can edit the `Makefile` and change the compiler to clang as desired.
+
+## Installing
+
+By default, `make install` installs `asleap` and `genkeys` into `/usr/bin`:
+
+```
+$ sudo make install
+```
+
+To uninstall:
+
+```
+$ sudo make uninstall
+```
+
+If needed, you can override the install root/prefix:
+
+```
+$ make DESTDIR=/tmp/pkgroot install
+$ make PREFIX=/usr/local install
+```
