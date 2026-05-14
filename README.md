@@ -9,8 +9,7 @@ Maintained since 2026 by [OscarAkaElvis](https://github.com/OscarAkaElvis)
 
 Fork maintenance release (2.4).
 
-Added make install/uninstall feature
-Merged fix from upstream PR #9 to resolve issue #8:
+Added make install/uninstall feature. Merged fix from upstream PR #9 to resolve issue #8:
 + Replaced deprecated DES crypt/setkey usage with OpenSSL EVP API.
 
 ## UPDATE - 2020-11-28
@@ -26,7 +25,7 @@ Minor update to fix a problem with IFNAMSIZ errors in build on some platforms.
 
 I updated asleap to include the "-C" and "-W" options, where you can specify
 the challenge value (in colon-delimited bytes) and the response (ditto) on the
-command-line.  This makes asleap more of a generic MS-CHAPv2 dictionary attack
+command-line. This makes asleap more of a generic MS-CHAPv2 dictionary attack
 tool, which is fine by me.
 
 ## UPDATE - 2007-5-10
