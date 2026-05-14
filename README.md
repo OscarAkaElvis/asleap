@@ -1,6 +1,7 @@
 # asleap - recovers weak LEAP and PPTP passwords
 
 Pronounced "asleep". Copyright(c) 2004-2020, [Joshua Wright](https://github.com/joswr1ght)
+
 Maintained since 2026 by [OscarAkaElvis](https://github.com/OscarAkaElvis)
 
 -------------------------------------------------------------------------------
@@ -8,6 +9,7 @@ Maintained since 2026 by [OscarAkaElvis](https://github.com/OscarAkaElvis)
 
 Fork maintenance release (2.4).
 
+Added make install/uninstall feature
 Merged fix from upstream PR #9 to resolve issue #8:
 + Replaced deprecated DES crypt/setkey usage with OpenSSL EVP API.
 
