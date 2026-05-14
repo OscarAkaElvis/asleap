@@ -27,7 +27,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdint.h>
-#include <crypt.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <netinet/in.h>     /* for ntohs() */

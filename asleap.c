@@ -72,7 +72,7 @@ unsigned long pcount=0;
 
 /* prototypes */
 void usage(char *message);
-void cleanup();
+void cleanup(int sig);
 void print_leapexch(struct asleap_data *asleap_ptr);
 void print_hashlast2(struct asleap_data *asleap_ptr);
 void print_leappw(struct asleap_data *asleap_ptr);
@@ -235,8 +235,10 @@ void print_leappw(struct asleap_data *asleap_ptr)
 
 }
 
-void cleanup()
+void cleanup(int sig)
 {
+
+    (void)sig;
 
     if (p != NULL) {
         printf("Closing pcap ...\n");
@@ -788,7 +790,7 @@ int findlpexch(struct asleap_data *asleap_ptr, int timeout, int offset)
         } else if (n == 1) {
             if (asleap_ptr->verbose)
                 printf("Reached EOF on pcapfile.\n");
-            cleanup();  /* exits */
+            cleanup(0);  /* exits */
         }
 
         if (packet == NULL) {
@@ -1575,7 +1577,7 @@ int main(int argc, char *argv[])
     default:
         fprintf(stderr, "Unsupported pcap datalink type: (%d) "
             "\n", pcap_datalink(p));
-        cleanup();  /* Exits */
+        cleanup(0);  /* Exits */
     }
 
 /*
