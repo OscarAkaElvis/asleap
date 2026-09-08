@@ -7,6 +7,8 @@ Maintained since 2026 by [OscarAkaElvis](https://github.com/OscarAkaElvis)
 -------------------------------------------------------------------------------
 ## UPDATE - 2026-09-08
 
+Maintenance release (2.4.1).
+
 Improved OpenSSL 3.x compatibility:
 
 * Explicitly load the OpenSSL legacy provider required for DES operations.
