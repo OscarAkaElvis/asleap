@@ -5,6 +5,13 @@ Pronounced "asleep". Copyright(c) 2004-2020, [Joshua Wright](https://github.com/
 Maintained since 2026 by [OscarAkaElvis](https://github.com/OscarAkaElvis)
 
 -------------------------------------------------------------------------------
+## UPDATE - 2026-09-08
+
+Improved OpenSSL 3.x compatibility:
+
+* Explicitly load the OpenSSL legacy provider required for DES operations.
+* Fixes DES encryption initialization failures on systems where the legacy provider is not enabled by default.
+
 ## UPDATE - 2026-05-14
 
 Fork maintenance release (2.4).
