@@ -34,6 +34,12 @@
 #include <sys/types.h>
 #include <openssl/evp.h>
 #include <openssl/des.h>
+#include <openssl/opensslv.h>
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/provider.h>
+#endif
+
 #include "utils.h"
 
 void lamont_hdump(unsigned char *bp, unsigned int length);
@@ -168,12 +174,41 @@ void Collapse(unsigned char *in, unsigned char *out)
     }
 }
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+static OSSL_PROVIDER *default_provider = NULL;
+static OSSL_PROVIDER *legacy_provider = NULL;
+
+static int InitOpenSSLProviders(void)
+{
+    static int initialized = 0;
+
+    if (initialized)
+        return 1;
+
+    default_provider = OSSL_PROVIDER_load(NULL, "default");
+    legacy_provider = OSSL_PROVIDER_load(NULL, "legacy");
+
+    if (default_provider == NULL || legacy_provider == NULL) {
+        fprintf(stderr, "Error: Failed to load required OpenSSL providers\n");
+        return 0;
+    }
+
+    initialized = 1;
+    return 1;
+}
+#endif
+
 void DesEncrypt(unsigned char *clear, unsigned char *key, unsigned char *cipher) {
     unsigned char des_key[8];
     EVP_CIPHER_CTX *ctx;
     int len;
     int ciphertext_len;
-    
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    if (!InitOpenSSLProviders())
+        return;
+#endif
+
     // Generate the 8-byte DES key from the input key
     MakeKey(key, des_key);
     
