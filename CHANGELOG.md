@@ -7,6 +7,7 @@ This file records the release and update history of asleap.
  - Replaced the deprecated OpenSSL `MD4()` one-shot function with the EVP digest API, improving compatibility with OpenSSL 3.x.
  - Added various small internal maintenance, documentation, and repository organization improvements.
  - Updated the Makefile to respect externally supplied compiler, preprocessor, and linker flags while preserving the definitions required by asleap.
+ - Added validation for dictionary and password database reads to handle EOF, truncated records, and lines without a trailing newline safely.
 
 ## 2.4.1
 

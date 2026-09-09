@@ -304,6 +304,7 @@ int getmschapbrute(struct asleap_data *asleap_ptr)
     char password[MAX_NT_PASSWORD + 1];
     unsigned char pwhash[MD4_SIGNATURE_SIZE];
     unsigned long long count = 0;
+    size_t password_len;
 
     if (*asleap_ptr->wordfile == '-') {
         wordlist = stdin;
@@ -314,13 +315,14 @@ int getmschapbrute(struct asleap_data *asleap_ptr)
         }
     }
 
-    while (!feof(wordlist)) {
+    while (fgets(password, MAX_NT_PASSWORD + 1, wordlist) != NULL) {
+        password_len = strlen(password);
+        if (password_len > 0 && password[password_len - 1] == '\n')
+            password[--password_len] = 0;
+        if (password_len > 0 && password[password_len - 1] == '\r')
+            password[--password_len] = 0;
 
-        fgets(password, MAX_NT_PASSWORD + 1, wordlist);
-        /* Remove newline */
-        password[strlen(password) - 1] = 0;
-
-        NtPasswordHash(password, strlen(password), pwhash);
+        NtPasswordHash(password, password_len, pwhash);
 
         count++;
         if ((count % 500000) == 0) {
@@ -336,12 +338,21 @@ int getmschapbrute(struct asleap_data *asleap_ptr)
         if (testchal(asleap_ptr, pwhash) == 0) {
             /* Found a matching password! w00t! */
             memcpy(asleap_ptr->nthash, pwhash, 16);
-            strncpy(asleap_ptr->password, password,
-                strlen(password));
-            fclose(wordlist);
+            strncpy(asleap_ptr->password, password, password_len);
+            if (wordlist != stdin)
+                fclose(wordlist);
             return (1);
         }
     }
+
+    if (ferror(wordlist)) {
+        perror("[getmschapbrute] fgets");
+        if (wordlist != stdin)
+            fclose(wordlist);
+        return (-1);
+    }
+    if (wordlist != stdin)
+        fclose(wordlist);
     return 0;
 }
 
@@ -371,16 +382,28 @@ int getmschappw(struct asleap_data *asleap_ptr)
         }
 
         fflush(stdout);
-        while (!feof(buffp)) {
+        while (1) {
 
             memset(&rec, 0, sizeof(rec));
             memset(&password_buf, 0, sizeof(password_buf));
             memset(&zpwhash, 0, sizeof(zpwhash));
-            fread(&rec.rec_size, sizeof(rec.rec_size), 1, buffp);
+            if (fread(&rec.rec_size, sizeof(rec.rec_size), 1, buffp) != 1)
+                break;
             recordlength = rec.rec_size;
             passlen = (recordlength - (17));
-            fread(&password_buf, passlen, 1, buffp);
-            fread(&zpwhash, 16, 1, buffp);
+            if (passlen < 0) {
+                fprintf(stderr, "Invalid password record length.\n");
+                fclose(buffp);
+                return (-1);
+            }
+            if (fread(&password_buf, 1, passlen, buffp) !=
+                (size_t)passlen ||
+                fread(&zpwhash, 1, sizeof(zpwhash), buffp) !=
+                sizeof(zpwhash)) {
+                fprintf(stderr, "Incomplete password record.\n");
+                fclose(buffp);
+                return (-1);
+            }
 
             /* Test last 2 characters of NT hash value of the current entry in the
                dictionary file.  If the 2 bytes of the NT hash don't
@@ -401,6 +424,12 @@ int getmschappw(struct asleap_data *asleap_ptr)
                 fclose(buffp);
                 return (1);
             }
+        }
+
+        if (ferror(buffp)) {
+            perror("[getmschappw] fread");
+            fclose(buffp);
+            return (-1);
         }
 
         /* Could not find a matching NT hash */
@@ -455,25 +484,40 @@ int getmschappw(struct asleap_data *asleap_ptr)
 
             memset(&rec, 0, sizeof(rec));
             memset(&password_buf, 0, sizeof(password_buf));
-            fread(&rec.rec_size, sizeof(rec.rec_size), 1, buffp);
+            if (fread(&rec.rec_size, sizeof(rec.rec_size), 1, buffp) != 1) {
+                fprintf(stderr, "Incomplete password record.\n");
+                fclose(buffp);
+                fclose(idxfp);
+                return (-1);
+            }
 
             /* The length of the password is the record size, 16 for the hash,
                1 for the record length byte. */
             passwordlen = rec.rec_size - 17;
 
             /* Check for corrupt data conditions, prevent segfault */
-            if (passwordlen > MAX_NT_PASSWORD) {
+            if (passwordlen < 0 ||
+                passwordlen >= (int)sizeof(password_buf)) {
                 fprintf(stderr,
-                    "Reported password length (%d) is longer than "
-                    "the max password length (%d).\n",
-                    passwordlen, MAX_NT_PASSWORD);
+                    "Reported password length (%d) is outside the valid "
+                    "range (0-%d).\n",
+                    passwordlen, (int)sizeof(password_buf) - 1);
+                fclose(buffp);
+                fclose(idxfp);
                 return (-1);
             }
 
             /* Gather the clear-text password from the dict+hash file,
                then grab the 16 byte hash */
-            fread(&password_buf, passwordlen, 1, buffp);
-            fread(&zpwhash, sizeof(zpwhash), 1, buffp);
+            if (fread(&password_buf, 1, passwordlen, buffp) !=
+                (size_t)passwordlen ||
+                fread(&zpwhash, 1, sizeof(zpwhash), buffp) !=
+                sizeof(zpwhash)) {
+                fprintf(stderr, "Incomplete password record.\n");
+                fclose(buffp);
+                fclose(idxfp);
+                return (-1);
+            }
 
             /* Test the challenge and compare to our hash */
             if (testchal(asleap_ptr, zpwhash) == 0) {

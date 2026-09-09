@@ -56,34 +56,45 @@ int compfunc(const void *x, const void *y)
 /* getnextrec accepts a record structure, a file pointer and a flag to indicate
    if we want to populate the password member of the structure (requires a
    malloc).  getnextrec populates the structure with the next record available,
-   and returns the record length on success, or negative on failure. */
+   and returns the record length on success, zero on EOF before a new record,
+   or negative on failure. */
 int getnextrec(struct hashpass_rec *rec, FILE * fp, int fillpass)
 {
     int passlen;
 
-    fread(&rec->rec_size, 1, 1, fp);
+    if (fread(&rec->rec_size, 1, 1, fp) != 1)
+        return (feof(fp) ? 0 : -1);
 
     passlen = (rec->rec_size - 17);
+    if (passlen < 0)
+        return (-1);
 
     if (fillpass) {
-        if (passlen < 1) {
-            perror("[getnextrec] Too short password length");
+        if ((rec->password = malloc(passlen + 1)) == NULL) {
             return (-1);
         }
+        memset(rec->password, 0, passlen + 1);
 
-        if ((rec->password = malloc(passlen)) == NULL) {
+        if (fread(rec->password, 1, passlen, fp) != (size_t)passlen) {
+            free(rec->password);
+            rec->password = NULL;
             return (-1);
         }
-
-        fread(rec->password, passlen, 1, fp);
 
     } else {
 
         /* Skip past the password */
-        fseek(fp, passlen, SEEK_CUR);
+        if (fseek(fp, passlen, SEEK_CUR) != 0)
+            return (-1);
     }
 
-    fread(rec->hash, 16, 1, fp);
+    if (fread(rec->hash, 1, sizeof(rec->hash), fp) != sizeof(rec->hash)) {
+        if (fillpass) {
+            free(rec->password);
+            rec->password = NULL;
+        }
+        return (-1);
+    }
 
     return (rec->rec_size);
 }
@@ -95,7 +106,10 @@ void closebuckets(struct hashbucket_rec hbucket[256], int hsub)
 
     char bucketfile[256];
     for (hsub--; hsub != -1; hsub--) {
-        fclose(hbucket[hsub].sbucket);
+        if (hbucket[hsub].sbucket != NULL) {
+            fclose(hbucket[hsub].sbucket);
+            hbucket[hsub].sbucket = NULL;
+        }
         sprintf(bucketfile, "genk-bucket-%02x.tmp", hsub);
         remove(bucketfile);
     }
@@ -122,6 +136,7 @@ int main(int argc, char *argv[])
     char password[MAX_NT_PASSWORD + 1];
     unsigned char pwhash[MD4_SIGNATURE_SIZE];
     int passlen, getnextret, c;
+    size_t password_len;
     off_t recoffset;
     float elapsed = 0;
     unsigned long int wordcount = 0;
@@ -206,18 +221,16 @@ int main(int argc, char *argv[])
         }
     }
 
-    while (!feof(inputfl)) {
-
-        fgets(password, MAX_NT_PASSWORD + 1, inputfl);
-        /* Remove newline */
-        password[strlen(password) - 1] = 0;
+    while (fgets(password, MAX_NT_PASSWORD + 1, inputfl) != NULL) {
+        password_len = strlen(password);
+        if (password_len > 0 && password[password_len - 1] == '\n')
+            password[--password_len] = 0;
 
         /* Code to accommodate Windows-formatted dictionary files on Linux.
            Thanks ocnarfid8/#kismet.
          */
-        if (password[strlen(password) - 1] == 0x0d) {
-            password[strlen(password) - 1] = 0;
-        }
+        if (password_len > 0 && password[password_len - 1] == '\r')
+            password[--password_len] = 0;
 
 #ifndef _OPENSSL_MD4
         /* md4.c seems to have a problem with passwords longer than 31 bytes.
@@ -228,10 +241,11 @@ int main(int argc, char *argv[])
         password[31] = 0;
 #endif
 
-        NtPasswordHash(password, strlen(password), pwhash);
+        password_len = strlen(password);
+        NtPasswordHash(password, password_len, pwhash);
 
         memcpy(rec.hash, pwhash, sizeof(rec.hash));
-        rec.rec_size = (strlen(password) + sizeof(rec.hash)
+        rec.rec_size = (password_len + sizeof(rec.hash)
                 + sizeof(rec.rec_size));
 
         /* Write the output record to the correct bucket, depending on byte
@@ -239,11 +253,20 @@ int main(int argc, char *argv[])
         hsub = rec.hash[14];
         fwrite(&rec.rec_size, sizeof(rec.rec_size), 1,
                hbucket[hsub].sbucket);
-        fwrite(password, strlen(password), 1, hbucket[hsub].sbucket);
+        fwrite(password, password_len, 1, hbucket[hsub].sbucket);
         fwrite(&rec.hash, sizeof(rec.hash), 1, hbucket[hsub].sbucket);
 
         hbucket[hsub].numrec++;
         wordcount++;
+    }
+
+    if (ferror(inputfl)) {
+        perror("fgets");
+        fclose(inputfl);
+        closebuckets(hbucket, 256);
+        fclose(outputfl);
+        fclose(outputidx);
+        exit(-1);
     }
 
     /* Flush all buffers before closing -- I don't think this is really
@@ -332,6 +355,12 @@ int main(int argc, char *argv[])
 
             /* Calculate password length - 17 is hash+rec length byte */
             passlen = (brec[brecsub].rec_size - 17);
+            if (passlen < 0) {
+                fprintf(stderr,
+                    "Invalid record length in bucket %02x.\n", hsub);
+                closebuckets(hbucket, 256);
+                exit(-1);
+            }
 
             /* malloc() memory for this password based on password length */
             if ((brec[brecsub].password =
@@ -345,13 +374,25 @@ int main(int argc, char *argv[])
             }
             memset(brec[brecsub].password, 0, passlen + 1);
 
-            /* Populate the password field with the next parameter in the 
+            /* Populate the password field with the next parameter in the
                record */
-            fread(brec[brecsub].password, passlen, 1,
-                  hbucket[hsub].sbucket);
+            if (fread(brec[brecsub].password, 1, passlen,
+                      hbucket[hsub].sbucket) != (size_t)passlen) {
+                fprintf(stderr,
+                    "Incomplete password record in bucket %02x.\n", hsub);
+                closebuckets(hbucket, 256);
+                exit(-1);
+            }
 
             /* Populate the hash field with the final parameter in the record */
-            fread(brec[brecsub].hash, 16, 1, hbucket[hsub].sbucket);
+            if (fread(brec[brecsub].hash, 1, sizeof(brec[brecsub].hash),
+                      hbucket[hsub].sbucket) !=
+                sizeof(brec[brecsub].hash)) {
+                fprintf(stderr,
+                    "Incomplete hash record in bucket %02x.\n", hsub);
+                closebuckets(hbucket, 256);
+                exit(-1);
+            }
         }
 
         /* sort this bucket */
@@ -370,6 +411,7 @@ int main(int argc, char *argv[])
 
         /* Get rid of the bucket */
         fclose(hbucket[hsub].sbucket);
+        hbucket[hsub].sbucket = NULL;
         sprintf(bucketfile, "genk-bucket-%02x.tmp", hsub);
         remove(bucketfile);
         free(brec);
@@ -401,8 +443,11 @@ int main(int argc, char *argv[])
     getnextret = 0;
 
     /* Populate the initial index record from the outputfl */
-    if ((getnextret = getnextrec(&tmprec, outputfl, 0)) < 0) {
-        perror("getnextrec");
+    getnextret = getnextrec(&tmprec, outputfl, 0);
+    if (getnextret <= 0) {
+        fprintf(stderr, "Unable to read initial password record.\n");
+        fclose(outputfl);
+        fclose(outputidx);
         exit(-1);
     }
 
@@ -417,12 +462,7 @@ int main(int argc, char *argv[])
     idxrec.offset = 0;
     idxrec.numrec = 1;
 
-    while (!feof(outputfl)) {
-
-        if ((getnextret = getnextrec(&rec, outputfl, 0)) < 0) {
-            perror("getnextrec");
-            exit(-1);
-        }
+    while ((getnextret = getnextrec(&rec, outputfl, 0)) > 0) {
         recoffset = recoffset + getnextret;
 
         if (idxrec.hashkey[0] != rec.hash[14] ||
@@ -459,6 +499,13 @@ int main(int argc, char *argv[])
             idxrec.numrec++;
             continue;
         }
+    }
+
+    if (getnextret < 0) {
+        fprintf(stderr, "Incomplete password record while creating index.\n");
+        fclose(outputfl);
+        fclose(outputidx);
+        exit(-1);
     }
 
     /* Write the final index record */
