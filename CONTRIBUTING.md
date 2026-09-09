@@ -33,6 +33,8 @@ Issues that omit essential version information, reproduction steps, or requested
 
 The `master` branch represents the latest stable release. Active development and pre-release testing take place on `dev`.
 
+`master` is a protected branch and is updated only through maintainer-managed release pull requests from `dev`. Direct pushes, force pushes, and branch deletion are not permitted.
+
 All contributor pull requests must target `dev`. Pull requests targeting `master` are not accepted as part of the normal development workflow and may be closed without merging.
 
 The usual workflow is:
