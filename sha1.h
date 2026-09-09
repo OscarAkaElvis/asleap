@@ -1,8 +1,10 @@
 #ifndef SHA1_H
 #define SHA1_H
 
+#include <stdint.h>
+
 #define SHA1_MAC_LEN 20
-typedef unsigned long u32;
+typedef uint32_t u32;
 
 typedef struct {
     u32 state[5];
