@@ -228,3 +228,7 @@ QUESTIONS, COMMENTS, CONCERNS
 
 Please contact jwright@hasborg.com with any questions, comments on concerns.
 ```
+
+## License
+
+This project is licensed under the GNU General Public License version 2. See [LICENSE](LICENSE).
