@@ -314,11 +314,10 @@ int getmschapbrute(struct asleap_data *asleap_ptr)
         }
     }
 
-    while (!feof(wordlist)) {
-
-        fgets(password, MAX_NT_PASSWORD + 1, wordlist);
+    while (fgets(password, MAX_NT_PASSWORD + 1, wordlist) != NULL) {
         /* Remove newline */
-        password[strlen(password) - 1] = 0;
+        if (password[strlen(password) - 1] == '\n')
+            password[strlen(password) - 1] = 0;
 
         NtPasswordHash(password, strlen(password), pwhash);
 
@@ -376,11 +375,14 @@ int getmschappw(struct asleap_data *asleap_ptr)
             memset(&rec, 0, sizeof(rec));
             memset(&password_buf, 0, sizeof(password_buf));
             memset(&zpwhash, 0, sizeof(zpwhash));
-            fread(&rec.rec_size, sizeof(rec.rec_size), 1, buffp);
+            if (fread(&rec.rec_size, sizeof(rec.rec_size), 1, buffp) != 1)
+                break;
             recordlength = rec.rec_size;
             passlen = (recordlength - (17));
-            fread(&password_buf, passlen, 1, buffp);
-            fread(&zpwhash, 16, 1, buffp);
+            if (fread(&password_buf, passlen, 1, buffp) != 1)
+                break;
+            if (fread(&zpwhash, 16, 1, buffp) != 1)
+                break;
 
             /* Test last 2 characters of NT hash value of the current entry in the
                dictionary file.  If the 2 bytes of the NT hash don't
@@ -455,7 +457,8 @@ int getmschappw(struct asleap_data *asleap_ptr)
 
             memset(&rec, 0, sizeof(rec));
             memset(&password_buf, 0, sizeof(password_buf));
-            fread(&rec.rec_size, sizeof(rec.rec_size), 1, buffp);
+            if (fread(&rec.rec_size, sizeof(rec.rec_size), 1, buffp) != 1)
+                break;
 
             /* The length of the password is the record size, 16 for the hash,
                1 for the record length byte. */
@@ -472,8 +475,10 @@ int getmschappw(struct asleap_data *asleap_ptr)
 
             /* Gather the clear-text password from the dict+hash file,
                then grab the 16 byte hash */
-            fread(&password_buf, passwordlen, 1, buffp);
-            fread(&zpwhash, sizeof(zpwhash), 1, buffp);
+            if (fread(&password_buf, passwordlen, 1, buffp) != 1)
+                break;
+            if (fread(&zpwhash, sizeof(zpwhash), 1, buffp) != 1)
+                break;
 
             /* Test the challenge and compare to our hash */
             if (testchal(asleap_ptr, zpwhash) == 0) {

@@ -61,7 +61,8 @@ int getnextrec(struct hashpass_rec *rec, FILE * fp, int fillpass)
 {
     int passlen;
 
-    fread(&rec->rec_size, 1, 1, fp);
+    if (fread(&rec->rec_size, 1, 1, fp) != 1)
+        return (-1);
 
     passlen = (rec->rec_size - 17);
 
@@ -75,7 +76,8 @@ int getnextrec(struct hashpass_rec *rec, FILE * fp, int fillpass)
             return (-1);
         }
 
-        fread(rec->password, passlen, 1, fp);
+        if (fread(rec->password, passlen, 1, fp) != 1)
+            return (-1);
 
     } else {
 
@@ -83,7 +85,8 @@ int getnextrec(struct hashpass_rec *rec, FILE * fp, int fillpass)
         fseek(fp, passlen, SEEK_CUR);
     }
 
-    fread(rec->hash, 16, 1, fp);
+    if (fread(rec->hash, 16, 1, fp) != 1)
+        return (-1);
 
     return (rec->rec_size);
 }
@@ -206,11 +209,10 @@ int main(int argc, char *argv[])
         }
     }
 
-    while (!feof(inputfl)) {
-
-        fgets(password, MAX_NT_PASSWORD + 1, inputfl);
+    while (fgets(password, MAX_NT_PASSWORD + 1, inputfl) != NULL) {
         /* Remove newline */
-        password[strlen(password) - 1] = 0;
+        if (password[strlen(password) - 1] == '\n')
+            password[strlen(password) - 1] = 0;
 
         /* Code to accommodate Windows-formatted dictionary files on Linux.
            Thanks ocnarfid8/#kismet.
@@ -345,13 +347,19 @@ int main(int argc, char *argv[])
             }
             memset(brec[brecsub].password, 0, passlen + 1);
 
-            /* Populate the password field with the next parameter in the 
+            /* Populate the password field with the next parameter in the
                record */
-            fread(brec[brecsub].password, passlen, 1,
-                  hbucket[hsub].sbucket);
+            if (fread(brec[brecsub].password, passlen, 1,
+                      hbucket[hsub].sbucket) != 1) {
+                closebuckets(hbucket, 256);
+                exit(-1);
+            }
 
             /* Populate the hash field with the final parameter in the record */
-            fread(brec[brecsub].hash, 16, 1, hbucket[hsub].sbucket);
+            if (fread(brec[brecsub].hash, 16, 1, hbucket[hsub].sbucket) != 1) {
+                closebuckets(hbucket, 256);
+                exit(-1);
+            }
         }
 
         /* sort this bucket */
