@@ -23,6 +23,7 @@
  */
 
 /* Prototypes */
+int InitOpenSSLProviders(void);
 void lamont_hdump(unsigned char *bp, unsigned int length);
 unsigned char Get7Bits(unsigned char *input, int startBit);
 void MakeKey(unsigned char *key, unsigned char *des_key);
