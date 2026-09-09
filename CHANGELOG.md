@@ -4,15 +4,16 @@ This file records the release and update history of asleap.
 
 ## 2.5
 
-- Replaced the deprecated OpenSSL `MD4()` one-shot function with the EVP digest API, improving compatibility with OpenSSL 3.x.
-- Added various small internal maintenance, documentation, and repository organization improvements.
+ - Replaced the deprecated OpenSSL `MD4()` one-shot function with the EVP digest API, improving compatibility with OpenSSL 3.x.
+ - Added various small internal maintenance, documentation, and repository organization improvements.
+ - Updated the Makefile to respect externally supplied compiler, preprocessor, and linker flags while preserving the definitions required by asleap.
 
 ## 2.4.1
 
 Improved OpenSSL 3.x compatibility:
 
-- Explicitly load the OpenSSL legacy provider required for DES operations.
-- Fix DES encryption initialization failures on systems where the legacy provider is not enabled by default.
+ - Explicitly load the OpenSSL legacy provider required for DES operations.
+ - Fix DES encryption initialization failures on systems where the legacy provider is not enabled by default.
 
 ## 2.4
 
