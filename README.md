@@ -4,66 +4,9 @@ Pronounced "asleep". Copyright(c) 2004-2020, [Joshua Wright](https://github.com/
 
 Maintained since 2026 by [OscarAkaElvis](https://github.com/OscarAkaElvis)
 
+See [CHANGELOG.md](CHANGELOG.md) for the release and update history.
+
 -------------------------------------------------------------------------------
-## UPDATE - 2026-09-08
-
-Maintenance release (2.4.1).
-
-Improved OpenSSL 3.x compatibility:
-
-* Explicitly load the OpenSSL legacy provider required for DES operations.
-* Fixes DES encryption initialization failures on systems where the legacy provider is not enabled by default.
-
-## UPDATE - 2026-05-14
-
-Fork maintenance release (2.4).
-
-Added make install/uninstall feature. Merged fix from upstream PR #9 to resolve issue #8:
-+ Replaced deprecated DES crypt/setkey usage with OpenSSL EVP API.
-
-## UPDATE - 2020-11-28
-
-Due to GLIBC removal of setkey and crypt functions, link to libxcrypt to
-restore functionality. Minor code cleanup.
-
-## UPDATE - 2008-5-28
-
-Minor update to fix a problem with IFNAMSIZ errors in build on some platforms.
-
-## UPDATE - 2007-7-13
-
-I updated asleap to include the "-C" and "-W" options, where you can specify
-the challenge value (in colon-delimited bytes) and the response (ditto) on the
-command-line. This makes asleap more of a generic MS-CHAPv2 dictionary attack
-tool, which is fine by me.
-
-## UPDATE - 2007-5-10
-
-I spent some time updating asleap and came to the following conclusions:
-
-+ My code is much better now than it was in 2003/2004
-+ I was (something stupid I wrote in 2007)
-
-I removed a lot of functionality that I didn't think was necessary any more in
-this version, specifically:
-
-+ No more support for Airopeek NX files; if you want to read from a .apc
-      file, install Wireshark, and run "tshark -r input.apc -w output.dump"
-      to convert to libpcap format.
-+ No more integration with Airjack to deauth users.  If you still want
-      to deauth users to get their LEAP credentials without waiting, you
-      can use a tool such as file2air, MDK2 or aireplay-ng.
-+ I stopped caring about Windows a long time ago.  If you need this,
-      and you only run Windows, try using a bootable Linux ISO like
-      Backtrack (www.remote-exploit.org) and VMWare.
-
-On the brighter side:
-
-+ The code has 90% less teh suck
-+ Fixed an awful bug where passwords > 64 characters caused genkeys
-  to segfault.
-+ Added code to handle QoS data frames
-+ Can handle radiotap-formatted capture files now
 
 ## INTRO
 
