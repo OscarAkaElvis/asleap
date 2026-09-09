@@ -9,6 +9,7 @@ This file records the release and update history of asleap.
  - Updated the Makefile to respect externally supplied compiler, preprocessor, and linker flags while preserving the definitions required by asleap.
  - Added validation for dictionary and password database reads to handle EOF, truncated records, and lines without a trailing newline safely.
  - Fixed a 64-bit portability issue in the internal SHA-1 implementation that could cause crashes when processing PPTP captures.
+ - Removed the obsolete Cygwin Makefile, which referenced files and dependencies no longer present in the project.
 
 ## 2.4.1
 
