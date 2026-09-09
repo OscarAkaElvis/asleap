@@ -23,8 +23,8 @@ sha1: sha1.c sha1.h
 asleap: asleap.c asleap.h sha1.o common.o common.h utils.o version.h sha1.c sha1.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) asleap.c -o asleap common.o utils.o sha1.o $(LDLIBS)
 
-genkeys: genkeys.c md4.c md4.h common.o utils.o version.h common.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) md4.c genkeys.c -o genkeys common.o utils.o $(LDLIBS)
+genkeys: genkeys.c common.o utils.o version.h common.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) genkeys.c -o genkeys common.o utils.o $(LDLIBS)
 
 install: $(PROG)
 	install -d $(DESTDIR)$(BINDIR)
