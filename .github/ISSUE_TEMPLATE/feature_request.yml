@@ -1,0 +1,60 @@
+name: Feature request
+description: Propose a focused improvement to asleap
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        asleap is a mature legacy project focused on maintenance and compatibility. Please discuss substantial changes before starting implementation.
+
+  - type: checkboxes
+    id: policy
+    attributes:
+      label: Issue Creation Policy
+      options:
+        - label: I have read and agree to follow the project's Issue Creation Policy.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Explain the concrete maintenance, compatibility, correctness, security, or portability problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe the smallest focused change that would address the problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility impact
+      description: Explain any effect on existing behavior, command-line options, supported platforms, dependencies, or file formats.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe other approaches considered and why they were not selected.
+
+  - type: textarea
+    id: testing
+    attributes:
+      label: Proposed testing
+      description: Explain how the change could be built and functionally validated.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+
