@@ -67,7 +67,7 @@ which is slightly more complex than the LEAP example:
     9. The SERVER combines the password-hash-hash, the literal "Magic server
        to client signing constant", and the 24-byte response and calculates a
        SHA1 hash.
-    10.The SERVER calculates the 8-byte challenge using the same procedure in 
+    10.The SERVER calculates the 8-byte challenge using the same procedure in
        (4).
     11.Combining the output from (9) and (10) with the literal constant "Pad
        to make it do more than one iteration", the SERVER calculates another
@@ -232,3 +232,7 @@ Please contact jwright@hasborg.com with any questions, comments on concerns.
 ## License
 
 This project is licensed under the GNU General Public License version 2. See [LICENSE](LICENSE).
+
+## Acknowledgements
+
+See [THANKS.md](THANKS.md) for acknowledgements and contributor credits.
