@@ -5,6 +5,7 @@ LDFLAGS		?=
 LDLIBS		+= -lcrypto
 PROGOBJ		= asleap.o genkeys.o utils.o common.o sha1.o
 PROG		= asleap genkeys
+DOCS		= README.md THANKS.md COMPILING.md LICENSE
 PREFIX		?= /usr
 BINDIR		?= $(PREFIX)/bin
 DOCDIR		?=
@@ -32,13 +33,14 @@ install: $(PROG)
 	install -m 0755 $(PROG) $(DESTDIR)$(BINDIR)
 ifdef DOCDIR
 	install -d $(DESTDIR)$(DOCDIR)
-	install -m 0644 README.md THANKS.md COMPILING.md COPYING $(DESTDIR)$(DOCDIR)
+	install -m 0644 $(DOCS) $(DESTDIR)$(DOCDIR)
 endif
 
 uninstall:
 	$(RM) $(DESTDIR)$(BINDIR)/asleap $(DESTDIR)$(BINDIR)/genkeys
 ifdef DOCDIR
-	$(RM) -r $(DESTDIR)$(DOCDIR)
+	$(RM) $(addprefix $(DESTDIR)$(DOCDIR)/,$(DOCS))
+	-rmdir $(DESTDIR)$(DOCDIR)
 endif
 
 clean:

@@ -7,6 +7,7 @@ This file records the release and update history of asleap.
  - Replaced the deprecated OpenSSL `MD4()` one-shot function with the EVP digest API, improving compatibility with OpenSSL 3.x.
  - Added various small internal maintenance, documentation, and repository organization improvements.
  - Updated the Makefile to respect externally supplied compiler, preprocessor, and linker flags while preserving the definitions required by asleap.
+ - Added optional `DOCDIR` support to the `install` and `uninstall` targets.
  - Added validation for dictionary and password database reads to handle EOF, truncated records, and lines without a trailing newline safely.
  - Fixed a 64-bit portability issue in the internal SHA-1 implementation that could cause crashes when processing PPTP captures.
  - Removed the obsolete Cygwin Makefile, which referenced files and dependencies no longer present in the project.
