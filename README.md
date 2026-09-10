@@ -2,7 +2,9 @@
 
 Pronounced "asleep". Copyright(c) 2004-2020, [Joshua Wright](https://github.com/joswr1ght)
 
-Maintained since 2026 by [OscarAkaElvis](https://github.com/OscarAkaElvis)
+Original upstream repository: [joswr1ght/asleap](https://github.com/joswr1ght/asleap)
+
+Maintained since 2026 by [OscarAkaElvis](https://github.com/OscarAkaElvis) at [OscarAkaElvis/asleap](https://github.com/OscarAkaElvis/asleap)
 
 See [CHANGELOG.md](CHANGELOG.md) for the release and update history.
 
