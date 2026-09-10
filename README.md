@@ -1,5 +1,13 @@
 # asleap - recovers weak LEAP and PPTP passwords
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="img/asleap-logo-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="img/asleap-logo-light.png">
+    <img alt="asleap logo" src="img/asleap-logo-light.png" width="500">
+  </picture>
+</p>
+
 Pronounced "asleep". Copyright(c) 2004-2020, [Joshua Wright](https://github.com/joswr1ght)
 
 Original upstream repository: [joswr1ght/asleap](https://github.com/joswr1ght/asleap)
