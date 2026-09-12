@@ -7,7 +7,7 @@
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation. See COPYING for more
+ * published by the Free Software Foundation. See LICENSE for more
  * details.
  *
  * asleap is distributed in the hope that it will be useful,
@@ -16,4 +16,4 @@
  * GNU General Public License for more details.
  */
 
-#define VER "2.4.1"
+#define VER "2.5"

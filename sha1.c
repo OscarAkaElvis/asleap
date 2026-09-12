@@ -9,7 +9,7 @@
  * Alternatively, this software may be distributed under the terms of BSD
  * license.
  *
- * See README and COPYING for more details.
+ * See README and LICENSE for more details.
  */
 
 #include <stdlib.h>

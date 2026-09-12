@@ -1,0 +1,137 @@
+name: Bug report
+description: Report reproducible incorrect behavior in asleap
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a problem. Please complete every applicable field in English and review the [contribution guidelines](../../CONTRIBUTING.md) before submitting the issue.
+
+  - type: checkboxes
+    id: policy
+    attributes:
+      label: Issue Creation Policy
+      options:
+        - label: I have read and agree to follow the project's Issue Creation Policy.
+          required: true
+
+  - type: input
+    id: asleap-version
+    attributes:
+      label: asleap version
+      description: Paste the complete output of `./asleap -V`.
+      placeholder: asleap 2.5 ...
+    validations:
+      required: true
+
+  - type: input
+    id: commit
+    attributes:
+      label: Commit tested
+      description: Provide the exact commit hash when testing the `dev` branch, or write "Not applicable" for a release.
+    validations:
+      required: true
+
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating system
+      description: Include the distribution name and version.
+      placeholder: Kali Linux 2026.x
+    validations:
+      required: true
+
+  - type: input
+    id: architecture
+    attributes:
+      label: Architecture
+      placeholder: x86_64 or AArch64
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Execution environment
+      options:
+        - Native Linux installation
+        - Virtual machine
+        - Container
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: installation
+    attributes:
+      label: Installation or build method
+      description: Explain how asleap was installed or built and include the commands used.
+    validations:
+      required: true
+
+  - type: textarea
+    id: toolchain
+    attributes:
+      label: OpenSSL and build tool versions
+      description: Include `openssl version -a`, the compiler version, the Make version, and relevant dependency versions.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Command executed
+      description: Provide the exact command that produced the problem.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem description
+      description: Describe the problem clearly and concisely.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: List the complete sequence needed to reproduce the problem using controlled test data.
+      placeholder: |
+        1. Build asleap with ...
+        2. Run ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Relevant output
+      description: Paste complete compiler diagnostics, error messages, or other relevant text output.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other information that may help investigate the problem.

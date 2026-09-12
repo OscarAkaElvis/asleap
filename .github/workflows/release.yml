@@ -1,0 +1,101 @@
+# Workflow for automatic GitHub releases
+
+name: Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - master
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event.pull_request.merged == true &&
+        github.event.pull_request.head.ref == 'dev' &&
+        github.event.pull_request.head.repo.full_name == github.repository
+      )
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Build release data
+        id: release_data
+        shell: bash
+        run: |
+          version="$(sed -nE 's/^[[:space:]]*#define[[:space:]]+VER[[:space:]]+"([^"]+)".*/\1/p' version.h | head -n 1)"
+
+          if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "Invalid asleap version: ${version}"
+            exit 1
+          fi
+
+          tag="v${version}"
+          head_commit="$(git rev-parse HEAD)"
+          existing_tag_commit="$(git rev-parse -q --verify "refs/tags/${tag}^{commit}" || true)"
+
+          if [ -n "${existing_tag_commit}" ] && [ "${existing_tag_commit}" != "${head_commit}" ]; then
+            echo "Tag ${tag} already exists and points to another commit"
+            exit 1
+          fi
+
+          awk -v version="${version}" '
+            $0 == "## " version { found=1; next }
+            found && /^## / { exit }
+            found { lines[++count]=$0 }
+            END {
+              first=1
+              while ((first <= count) && (lines[first] == "")) {
+                first++
+              }
+              while ((count >= first) && (lines[count] == "")) {
+                count--
+              }
+              for (i=first; i<=count; i++) {
+                print lines[i]
+              }
+            }
+          ' CHANGELOG.md > changelog_section.md
+
+          if ! grep -q '[^[:space:]]' changelog_section.md; then
+            echo "Changelog section for ${version} was not found or is empty"
+            exit 1
+          fi
+
+          {
+            echo "### Changelog:"
+            echo
+            cat changelog_section.md
+          } > release_notes.md
+
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
+          echo "commit=${head_commit}" >> "${GITHUB_OUTPUT}"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if gh release view "${{ steps.release_data.outputs.tag }}" > /dev/null 2>&1; then
+            echo "Release ${{ steps.release_data.outputs.tag }} already exists"
+            exit 0
+          fi
+
+          gh release create "${{ steps.release_data.outputs.tag }}" \
+            --target "${{ steps.release_data.outputs.commit }}" \
+            --title "${{ steps.release_data.outputs.tag }}" \
+            --notes-file release_notes.md \
+            --latest

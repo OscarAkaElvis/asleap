@@ -1,0 +1,91 @@
+name: Compatibility request
+description: Request or report compatibility with a platform or toolchain
+title: "[Compatibility]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for compatibility involving a Linux distribution, architecture, compiler, dependency, or OpenSSL version. Complete every applicable field in English.
+
+  - type: checkboxes
+    id: policy
+    attributes:
+      label: Issue Creation Policy
+      options:
+        - label: I have read and agree to follow the project's Issue Creation Policy.
+          required: true
+
+  - type: input
+    id: asleap-version
+    attributes:
+      label: asleap version
+      description: Paste the output of `./asleap -V`, or provide the exact `dev` commit hash.
+    validations:
+      required: true
+
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating system
+      description: Include the distribution name and version.
+    validations:
+      required: true
+
+  - type: input
+    id: architecture
+    attributes:
+      label: Architecture
+      placeholder: x86_64 or AArch64
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Execution environment
+      options:
+        - Native Linux installation
+        - Virtual machine
+        - Container
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: versions
+    attributes:
+      label: Toolchain and dependency versions
+      description: Include OpenSSL, compiler, Make, libpcap, and any other relevant versions.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: request
+    attributes:
+      label: Compatibility request
+      description: Explain the compatibility problem or platform support being requested and why it is relevant.
+    validations:
+      required: true
+
+  - type: textarea
+    id: build
+    attributes:
+      label: Build commands and results
+      description: Provide the exact commands and complete relevant output.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: functional-testing
+    attributes:
+      label: Functional testing
+      description: Describe the functional tests performed and their results. State clearly if functional testing was not possible.
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context

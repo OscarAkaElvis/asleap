@@ -7,7 +7,7 @@
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation. See COPYING for more
+ * published by the Free Software Foundation. See LICENSE for more
  * details.
  *
  * asleap is distributed in the hope that it will be useful,
@@ -23,6 +23,7 @@
  */
 
 /* Prototypes */
+int InitOpenSSLProviders(void);
 void lamont_hdump(unsigned char *bp, unsigned int length);
 unsigned char Get7Bits(unsigned char *input, int startBit);
 void MakeKey(unsigned char *key, unsigned char *des_key);

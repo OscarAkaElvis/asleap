@@ -7,7 +7,7 @@
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation. See COPYING for more
+ * published by the Free Software Foundation. See LICENSE for more
  * details.
  *
  * asleap is distributed in the hope that it will be useful,
@@ -30,11 +30,16 @@
 #include "utils.h"
 
 #ifdef _OPENSSL_MD4
-#include <openssl/md4.h>
-#define MD4Init MD4_Init
-#define MD4Update MD4_Update
-#define MD4Final MD4_Final
-#define MD4WRAP MD4
+#include <openssl/evp.h>
+/* MD4() was deprecated in OpenSSL 3.0.  Use EVP_Digest so we work on all
+   supported versions without touching the deprecated one-shot function. */
+static void md4_evp(const unsigned char *data, size_t len, unsigned char *out)
+{
+    unsigned int outlen;
+    InitOpenSSLProviders(); /* ensures the legacy provider is loaded on OpenSSL 3.x */
+    EVP_Digest(data, len, out, &outlen, EVP_md4(), NULL);
+}
+#define MD4WRAP md4_evp
 #else
 #include "md4.h"
 #define MD4WRAP md4
