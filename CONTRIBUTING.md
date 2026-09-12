@@ -8,6 +8,8 @@ For substantial changes, please open an issue first so the scope and proposed ap
 
 ## Issue Creation Policy
 
+Suspected security vulnerabilities must not be reported through public GitHub issues. See [SECURITY.md](SECURITY.md) for the project's security policy and private reporting instructions.
+
 Search existing issues before opening a new one and confirm that the problem occurs with the latest applicable version or the current `dev` branch.
 
 All issues must be written in English and include:
